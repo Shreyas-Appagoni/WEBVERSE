@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebCraft — The Future of Web Programming</title>
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    :root {
+      --bg:         #07090f;
+      --bg2:        #0d1117;
+      --surface:    rgba(255,255,255,0.04);
+      --surface2:   rgba(255,255,255,0.07);
+      --border:     rgba(255,255,255,0.08);
+      --border2:    rgba(255,255,255,0.14);
+      --accent:     #4f8ef7;
+      --accent2:    #7c6af5;
+      --accent3:    #3ecfb2;
+      --text:       #e8ecf2;
+      --muted:      #7a8499;
+      --muted2:     #4a5568;
+      --glow1:      rgba(79,142,247,0.18);
+      --glow2:      rgba(124,106,245,0.14);
+      --glow3:      rgba(62,207,178,0.12);
+      --r-sm:       12px;
+      --r-md:       18px;
+      --r-lg:       28px;
+      --r-xl:       40px;
+      --shadow:     0 8px 40px rgba(0,0,0,0.5);
+      --shadow-lg:  0 20px 80px rgba(0,0,0,0.6);
+      --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'SF Pro Display', system-ui, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── Animated Background Orbs ───────────────────────────── */
+    .orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.55;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .orb1 { width: 520px; height: 520px; background: var(--accent); top: -14%; left: -8%; animation-delay: 0s; }
+    .orb2 { width: 420px; height: 420px; background: var(--accent2); top: 28%; right: -10%; animation-delay: -6s; }
+    .orb3 { width: 340px; height: 340px; background: var(--accent3); bottom: -8%; left: 30%; animation-delay: -12s; }
+    @keyframes drift {
+      0%   { transform: translate(0,0) scale(1); }
+      50%  { transform: translate(30px,-40px) scale(1.06); }
+      100% { transform: translate(-20px,20px) scale(0.97); }
+    }
+
+    /* ── Utility ─────────────────────────────────────────────── */
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+    section { position: relative; z-index: 1; }
+
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--r-lg);
+    }
+    .glass2 {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--r-md);
+    }
+
+    /* ── Fade-in reveal ──────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0;
+      transition: background var(--transition), box-shadow var(--transition);
+    }
+    nav.scrolled {
+      background: rgba(7,9,15,0.82);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 1px 0 var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff !important;
+      padding: 9px 22px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 0.85rem !important;
+      transition: opacity var(--transition), transform var(--transition) !important;
+    }
+    .nav-cta:hover { opacity: 0.88; transform: translateY(-1px) !important; color: #fff !important; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: var(--transition); }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 68px; left: 0; right: 0;
+      background: rgba(7,9,15,0.97);
+      backdrop-filter: blur(24px);
+      padding: 24px 28px;
+      z-index: 99;
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a { display: block; padding: 12px 0; color: var(--muted); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--border); }
+    .mobile-menu a:last-child { border-bottom: none; }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 110px 0 80px;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent3);
+      border: 1px solid rgba(62,207,178,0.22);
+      background: rgba(62,207,178,0.08);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 22px;
+    }
+    .hero-eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent3); border-radius: 50%; display: block; box-shadow: 0 0 10px var(--accent3); }
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 22px;
+    }
+    h1 span {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-desc {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin-bottom: 36px;
+      line-height: 1.75;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 30px;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+      box-shadow: 0 4px 32px rgba(79,142,247,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 50px rgba(79,142,247,0.45); opacity: 0.92; }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--surface2);
+      color: var(--text);
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      transition: transform var(--transition), background var(--transition);
+    }
+    .btn-ghost:hover { transform: translateY(-3px); background: rgba(255,255,255,0.09); }
+    .hero-image-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .hero-image-frame {
+      position: relative;
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      border: 1px solid var(--border2);
+      box-shadow: var(--shadow-lg), 0 0 80px rgba(79,142,247,0.12);
+      transform: perspective(900px) rotateY(-6deg) rotateX(3deg);
+      transition: transform var(--transition);
+      max-width: 520px;
+      width: 100%;
+    }
+    .hero-image-frame:hover { transform: perspective(900px) rotateY(-2deg) rotateX(1deg); }
+    .hero-image-frame img { display: block; width: 100%; height: 360px; object-fit: cover; }
+    .hero-badge {
+      position: absolute;
+      bottom: -18px;
+      left: -22px;
+      background: rgba(7,9,15,0.88);
+      border: 1px solid var(--border2);
+      backdrop-filter: blur(20px);
+      border-radius: var(--r-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-badge-icon { font-size: 1.8rem; }
+    .hero-badge-text strong { display: block; font-size: 1rem; font-weight: 700; }
+    .hero-badge-text span { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── Section headers ─────────────────────────────────────── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.75;
+    }
+    .section-head { margin-bottom: 58px; }
+
+    /* ── About ───────────────────────────────────────────────── */
+    #about { padding: 110px 0; }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .about-card {
+      padding: 36px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .about-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+    .about-card-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 24px rgba(79,142,247,0.28);
+    }
+    .about-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+    .about-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.75; }
+    .about-main { grid-column: 1 / -1; padding: 40px; }
+    .about-main p { color: var(--muted); font-size: 1.02rem; line-height: 1.85; margin-bottom: 16px; }
+    .about-main p:last-child { margin-bottom: 0; }
+
+    /* ── Stats ───────────────────────────────────────────────── */
+    #stats { padding: 80px 0; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .stat-card {
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .stat-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      border-radius: 2px 2px 0 0;
+    }
+    .stat-number {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .stat-label { color: var(--muted); font-size: 0.92rem; font-weight: 500; line-height: 1.5; }
+
+    /* ── Core Concepts ───────────────────────────────────────── */
+    #concepts { padding: 110px 0; }
+    .table-wrap { overflow-x: auto; border-radius: var(--r-lg); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: rgba(79,142,247,0.06); }
+    th {
+      padding: 18px 24px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: left;
+      border-bottom: 1px solid var(--border2);
+    }
+    td {
+      padding: 18px 24px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr { transition: background var(--transition); }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    td:first-child { color: var(--text); font-weight: 600; }
+    .badge-method {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .badge-get { background: rgba(62,207,178,0.12); color: var(--accent3); border: 1px solid rgba(62,207,178,0.2); }
+    .badge-post { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
+    .badge-http { background: rgba(124,106,245,0.12); color: var(--accent2); border: 1px solid rgba(124,106,245,0.2); }
+    .badge-srv { background: rgba(255,200,100,0.1); color: #f0b040; border: 1px solid rgba(255,200,100,0.18); }
+
+    /* ── Technologies ────────────────────────────────────────── */
+    #technologies { padding: 110px 0; }
+    .tech-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+    .tech-card {
+      padding: 40px 32px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .tech-card:hover { transform: translateY(-10px); box-shadow: var(--shadow); border-color: var(--border2); }
+    .tech-card-glow {
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0;
+      top: -40px; right: -40px;
+      transition: opacity var(--transition);
+    }
+    .tech-card:hover .tech-card-glow { opacity: 0.45; }
+    .tech-html .tech-card-glow { background: #e44d26; }
+    .tech-css  .tech-card-glow { background: #264de4; }
+    .tech-js   .tech-card-glow { background: #f0db4f; }
+    .tech-thumb {
+      width: 100%; height: 160px;
+      object-fit: cover;
+      border-radius: var(--r-sm);
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
+    }
+    .tech-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .tech-html .tech-tag { background: rgba(228,77,38,0.12); color: #e44d26; border: 1px solid rgba(228,77,38,0.22); }
+    .tech-css  .tech-tag { background: rgba(38,77,228,0.12); color: #6484f5; border: 1px solid rgba(38,77,228,0.22); }
+    .tech-js   .tech-tag { background: rgba(240,219,79,0.1); color: #d4b800; border: 1px solid rgba(240,219,79,0.22); }
+    .tech-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .tech-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+    .tech-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .tech-learn { font-size: 0.82rem; color: var(--accent); font-weight: 600; }
+    .tech-arrow { font-size: 1rem; color: var(--muted); transition: transform var(--transition); }
+    .tech-card:hover .tech-arrow { transform: translateX(4px); color: var(--accent); }
+
+    /* ── Modal ───────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(10px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #0d1117;
+      border: 1px solid var(--border2);
+      border-radius: var(--r-xl);
+      padding: 44px;
+      max-width: 640px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(30px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-overlay.open .modal { transform: none; }
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      width: 36px; height: 36px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition), color var(--transition);
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .modal-header { margin-bottom: 22px; }
+    .modal-header h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .modal-body p { color: var(--muted); font-size: 0.97rem; line-height: 1.8; margin-bottom: 14px; }
+    .modal-body ul { list-style: none; padding: 0; }
+    .modal-body li {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .modal-body li::before { content: '›'; color: var(--accent); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+    .modal-thumb { width: 100%; height: 180px; object-fit: cover; border-radius: var(--r-md); margin-bottom: 22px; }
+
+    /* ── Multimedia ──────────────────────────────────────────── */
+    #multimedia { padding: 110px 0; }
+    .media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .media-card { padding: 32px; }
+    .media-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 14px;
+    }
+    .media-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .media-card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; }
+    video, audio {
+      width: 100%;
+      border-radius: var(--r-md);
+      outline: none;
+      background: #000;
+    }
+    video { max-height: 260px; border: 1px solid var(--border); }
+    audio { height: 50px; filter: invert(0.85) hue-rotate(190deg) saturate(0.7); }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 60px 0 40px;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .footer-logo {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .footer-links { display: flex; gap: 28px; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .footer-bottom p { color: var(--muted); font-size: 0.82rem; }
+    .footer-bottom a { color: var(--accent); text-decoration: none; }
+    .footer-chips { display: flex; gap: 10px; }
+    .chip {
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-image-wrap { order: -1; }
+      .hero-image-frame { transform: none !important; max-width: 100%; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-main { grid-column: auto; }
+      .stats-grid { grid-template-columns: 1fr; gap: 20px; }
+      .tech-grid { grid-template-columns: 1fr; gap: 20px; }
+      .media-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 18px; }
+      .modal { padding: 28px 20px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* ── Scrollbar ───────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- Background Orbs -->
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">WebVerse</a>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#concepts">Concepts</a></li>
+      <li><a href="#technologies">Technologies</a></li>
+      <li><a href="#multimedia">Multimedia</a></li>
+      <li><a href="#footer" class="nav-cta">Get Started</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#hero" onclick="closeMobile()">Home</a>
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#concepts" onclick="closeMobile()">Core Concepts</a>
+  <a href="#technologies" onclick="closeMobile()">Technologies</a>
+  <a href="#multimedia" onclick="closeMobile()">Multimedia</a>
+</div>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content reveal">
+        <div class="hero-eyebrow">Web Programming Assignment</div>
+        <h1>The Future of<br><span>Web Programming</span></h1>
+        <p class="hero-desc">
+          Web programming is more than writing code — it's crafting digital experiences that connect
+          billions of people. From pixel-perfect interfaces to powerful server-side logic, the modern
+          web is built by those who dare to imagine what's possible.
+        </p>
+        <div class="hero-actions">
+          <a href="#about" class="btn-primary">
+            Explore Now
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#technologies" class="btn-ghost">
+            View Technologies
+          </a>
+        </div>
+      </div>
+      <div class="hero-image-wrap reveal" style="transition-delay:0.15s">
+        <div class="hero-image-frame">
+          <img src="web.jpg" alt="Web Programming" onerror="this.style.background='linear-gradient(135deg,#0d1117,#1a2238)';this.alt='';this.style.minHeight='360px'" />
+        </div>
+        <div class="hero-badge glass2">
+          <div class="hero-badge-icon">🌐</div>
+          <div class="hero-badge-text">
+            <strong>15M+ Developers</strong>
+            <span>Building the modern web</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-label">About</div>
+      <h2 class="section-title">What Is Web Programming?</h2>
+      <p class="section-desc">A discipline that transforms ideas into interactive, accessible, and powerful digital products.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-main glass reveal">
+        <p>
+          Web programming is the art and science of building applications and websites that run in a browser over the internet. It bridges creative design and logical computation — combining markup, styling, scripting, and server logic to produce seamless digital experiences.
+        </p>
+        <p>
+          At its core, web programming encompasses three layers: the structural foundation built with HTML, the visual presentation crafted with CSS, and the dynamic behaviour powered by JavaScript. Together, these technologies form the backbone of every website you have ever visited.
+        </p>
+        <p>
+          As the field evolves, web programmers today must also understand APIs, databases, authentication, performance optimisation, accessibility, and cloud deployment — making it one of the most versatile and in-demand skill sets in the technology industry.
+        </p>
+      </div>
+      <div class="about-card glass reveal" style="transition-delay:0.1s">
+        <div class="about-card-icon">⚙️</div>
+        <h3>Client-Side Development</h3>
+        <p>Everything the user sees and interacts with — rendered in the browser using HTML, CSS, and JavaScript. Responsible for layout, animation, and interactivity.</p>
+      </div>
+      <div class="about-card glass reveal" style="transition-delay:0.2s">
+        <div class="about-card-icon">🛢️</div>
+        <h3>Server-Side Development</h3>
+        <p>Handles business logic, database operations, authentication, and API responses. Runs on a server and communicates with the browser via HTTP requests.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card glass reveal">
+        <div class="stat-number">15M+</div>
+        <div class="stat-label">Active developers building on the web globally every day</div>
+      </div>
+      <div class="stat-card glass reveal" style="transition-delay:0.1s">
+        <div class="stat-number">95%</div>
+        <div class="stat-label">Of businesses rely on web technologies for their digital presence</div>
+      </div>
+      <div class="stat-card glass reveal" style="transition-delay:0.2s">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Global connectivity enabling real-time communication across every timezone</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Core Concepts -->
+<section id="concepts">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-label">Core Concepts</div>
+      <h2 class="section-title">Foundations of the Web</h2>
+      <p class="section-desc">Understanding the protocols and patterns that power every request on the internet.</p>
+    </div>
+    <div class="table-wrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Common Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Web Server</td>
+            <td><span class="badge-method badge-srv">Infrastructure</span></td>
+            <td>A software or hardware system that stores and delivers web content in response to client requests over the internet using HTTP or HTTPS.</td>
+            <td>Apache, Nginx, Node.js serve HTML, CSS, JS and data to browsers.</td>
+          </tr>
+          <tr>
+            <td>HTTP</td>
+            <td><span class="badge-method badge-http">Protocol</span></td>
+            <td>HyperText Transfer Protocol — the foundational communication standard that defines how messages are formatted and transmitted between web clients and servers.</td>
+            <td>Every browser request to a website uses HTTP or its secure variant, HTTPS.</td>
+          </tr>
+          <tr>
+            <td>GET Method</td>
+            <td><span class="badge-method badge-get">GET</span></td>
+            <td>An HTTP request method used to retrieve data from a server. Parameters are appended to the URL and the request has no body. Idempotent and cacheable.</td>
+            <td>Loading a webpage, fetching a list of products, or searching with query parameters.</td>
+          </tr>
+          <tr>
+            <td>POST Method</td>
+            <td><span class="badge-method badge-post">POST</span></td>
+            <td>An HTTP request method used to send data to a server to create or update a resource. Data is included in the request body rather than the URL.</td>
+            <td>Submitting a login form, uploading a file, or placing an order online.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Technologies -->
+<section id="technologies">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-label">Technologies</div>
+      <h2 class="section-title">The Core Trio</h2>
+      <p class="section-desc">Click any card to explore in depth how each technology powers the modern web.</p>
+    </div>
+    <div class="tech-grid">
+
+      <!-- HTML -->
+      <div class="tech-card glass tech-html reveal" onclick="openModal('html')">
+        <div class="tech-card-glow"></div>
+        <img class="tech-thumb" src="html.jpg" alt="HTML"
+          onerror="this.style.background='linear-gradient(135deg,#e44d2622,#0d1117)';this.style.border='1px solid #e44d2633'" />
+        <div class="tech-tag">HTML5</div>
+        <h3>HyperText Markup Language</h3>
+        <p>The structural skeleton of every webpage. Defines content, layout hierarchy, semantic meaning, and document metadata.</p>
+        <div class="tech-card-footer">
+          <span class="tech-learn">Learn more</span>
+          <span class="tech-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- CSS -->
+      <div class="tech-card glass tech-css reveal" style="transition-delay:0.1s" onclick="openModal('css')">
+        <div class="tech-card-glow"></div>
+        <img class="tech-thumb" src="css.jpg" alt="CSS"
+          onerror="this.style.background='linear-gradient(135deg,#264de422,#0d1117)';this.style.border='1px solid #264de433'" />
+        <div class="tech-tag">CSS3</div>
+        <h3>Cascading Style Sheets</h3>
+        <p>The visual layer of the web. Controls colours, fonts, layout, animations, and everything the eye perceives on screen.</p>
+        <div class="tech-card-footer">
+          <span class="tech-learn">Learn more</span>
+          <span class="tech-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- JS -->
+      <div class="tech-card glass tech-js reveal" style="transition-delay:0.2s" onclick="openModal('js')">
+        <div class="tech-card-glow"></div>
+        <img class="tech-thumb" src="js.jpg" alt="JavaScript"
+          onerror="this.style.background='linear-gradient(135deg,#f0db4f22,#0d1117)';this.style.border='1px solid #f0db4f33'" />
+        <div class="tech-tag">JavaScript</div>
+        <h3>JavaScript (ES2024)</h3>
+        <p>The engine of interactivity. Powers dynamic content, event handling, API calls, and complex client-side logic.</p>
+        <div class="tech-card-footer">
+          <span class="tech-learn">Learn more</span>
+          <span class="tech-arrow">→</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Multimedia -->
+<section id="multimedia">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-label">Multimedia</div>
+      <h2 class="section-title">Rich Media on the Web</h2>
+      <p class="section-desc">HTML5 makes embedding rich video and audio native to the browser — no plugins required.</p>
+    </div>
+    <div class="media-grid">
+      <div class="media-card glass reveal">
+        <div class="media-label">Video Player</div>
+        <h3>Web Development Overview</h3>
+        <p>An introduction to the world of web programming — its history, tools, and the technologies shaping the future of digital experiences.</p>
+        <video controls preload="metadata" poster="">
+          <source src="sample.mp4" type="video/mp4" />
+          Your browser does not support the video element.
+        </video>
+      </div>
+      <div class="media-card glass reveal" style="transition-delay:0.1s">
+        <div class="media-label">Audio Player</div>
+        <h3>Developer Podcast</h3>
+        <p>Listen to insights from seasoned web developers sharing lessons, tips, and trends from the ever-evolving landscape of web programming.</p>
+        <audio controls preload="metadata">
+          <source src="sample.mp3" type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+        <div style="margin-top:22px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);display:flex;align-items:center;gap:14px;">
+          <div style="font-size:2rem;">🎙️</div>
+          <div>
+            <p style="color:var(--text);font-size:0.9rem;font-weight:600;margin:0 0 4px">Episode 1 — The Web Today</p>
+            <p style="font-size:0.8rem;margin:0">Web Programming Series · 2025</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer id="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">WebCraft</div>
+      <div class="footer-links">
+        <a href="#hero">Home</a>
+        <a href="#about">About</a>
+        <a href="#concepts">Concepts</a>
+        <a href="#technologies">Technologies</a>
+        <a href="#multimedia">Multimedia</a>
+      </div>
+      <div class="footer-chips">
+        <span class="chip">HTML5</span>
+        <span class="chip">CSS3</span>
+        <span class="chip">Vanilla JS</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 WebCraft &nbsp;·&nbsp; Web Programming Assignment &nbsp;·&nbsp; Designed with precision &amp; passion</p>
+      <p>Built with <span style="color:#e45;">♥</span> using pure HTML, CSS &amp; JavaScript</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalBox" role="dialog" aria-modal="true">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+  /* ── Nav scroll ─────────────────────────────────────────────── */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 30);
+  });
+
+  /* ── Mobile menu ────────────────────────────────────────────── */
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  function closeMobile() { mobileMenu.classList.remove('open'); }
+
+  /* ── Reveal on scroll ───────────────────────────────────────── */
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  /* ── Modal content ──────────────────────────────────────────── */
+  const modalData = {
+    html: {
+      tag: 'HTML5',
+      color: '#e44d26',
+      img: 'html.jpg',
+      title: 'HyperText Markup Language',
+      intro: 'HTML is the foundational language of the web. Every webpage ever created starts with HTML — a system of tags and elements that define what content appears on screen and what that content means to browsers, search engines, and assistive technologies.',
+      body: 'HTML5, the latest major version, introduced powerful semantic elements like &lt;article&gt;, &lt;section&gt;, &lt;nav&gt;, and &lt;aside&gt; that help browsers and developers understand the purpose of content. It also brought native support for audio, video, canvas drawing, geolocation, and offline storage without any third-party plugins.',
+      list: [
+        'Semantic tags provide meaning to content, improving accessibility and SEO',
+        'Forms, inputs, and validation built natively into the language',
+        'HTML5 Canvas API enables 2D graphics rendering in the browser',
+        'Supports embedding multimedia (video, audio) natively without Flash',
+        'The DOM structure links HTML to CSS and JavaScript for full interactivity',
+      ]
+    },
+    css: {
+      tag: 'CSS3',
+      color: '#6484f5',
+      img: 'css.jpg',
+      title: 'Cascading Style Sheets',
+      intro: 'CSS is the visual language of the web. While HTML provides structure, CSS transforms raw content into beautiful, polished, and responsive interfaces. It controls every visual aspect of a page — from font choices and colour palettes to complex multi-column layouts and smooth animations.',
+      body: 'Modern CSS has evolved dramatically. CSS Grid and Flexbox revolutionised layout design. CSS custom properties (variables) enable consistent theming. Media queries make responsive design possible. And features like backdrop-filter, clamp(), and container queries have elevated what\'s achievable without JavaScript.',
+      list: [
+        'Flexbox and Grid for complex, responsive layout systems',
+        'CSS variables (custom properties) for consistent, themeable design tokens',
+        'Keyframe animations and transitions for smooth, performant motion',
+        'Pseudo-elements and pseudo-classes for rich styling without extra markup',
+        'Media queries and container queries for adaptive responsive design',
+      ]
+    },
+    js: {
+      tag: 'JavaScript',
+      color: '#d4b800',
+      img: 'js.jpg',
+      title: 'JavaScript — ES2024',
+      intro: 'JavaScript is the only programming language natively understood by every web browser. It transforms static HTML and CSS into dynamic, interactive applications. From simple form validation to real-time chat apps and 3D games, JavaScript powers virtually all client-side behaviour on the modern web.',
+      body: 'JavaScript has expanded far beyond the browser. Node.js brought it to servers, enabling full-stack development with a single language. Frameworks like React, Vue, and Angular have built massive ecosystems around it. With ES2024, JavaScript continues to evolve — adding new syntax, performance improvements, and expressive power.',
+      list: [
+        'Event-driven programming model responds to user interactions in real time',
+        'Fetch API and async/await for elegant, readable asynchronous data loading',
+        'DOM manipulation allows dynamic updates without page reloads',
+        'Closures, prototypes, and the event loop form its powerful core concepts',
+        'Runs on both client (browser) and server (Node.js) environments',
+      ]
+    }
+  };
+
+  function openModal(key) {
+    const d = modalData[key];
+    const overlay = document.getElementById('modalOverlay');
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-header">
+        <span style="display:inline-block;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:${d.color}18;color:${d.color};border:1px solid ${d.color}33;margin-bottom:10px;">${d.tag}</span>
+        <h2>${d.title}</h2>
+      </div>
+      <div class="modal-body">
+        <img class="modal-thumb" src="${d.img}" alt="${d.title}"
+          onerror="this.style.background='linear-gradient(135deg,${d.color}22,#0d1117)';this.style.border='1px solid ${d.color}33'" />
+        <p>${d.intro}</p>
+        <p>${d.body}</p>
+        <ul>
+          ${d.list.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>`;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
